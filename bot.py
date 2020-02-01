@@ -7,20 +7,13 @@ from pydub import AudioSegment
 from pymongo import MongoClient
 import face_recognition
 
-<<<<<<< HEAD
-from config import TOKEN, DB
-
-=======
-
-TOKEN = "955630284:AAHFnYf3fCCi0r7umpMnzrP9ukOICKCANpQ"
-DB = "mongodb://127.0.0.1:27017/"
->>>>>>> bafdf76516b36d93657b9a756d3b72b4b805d71c
+from config import DB, TOKEN
 
 client = MongoClient(DB)
 db = client.bot_db
 
-# logger = telebot.logger
-# telebot.logger.setLevel(logging.DEBUG)
+logger = telebot.logger
+telebot.logger.setLevel(logging.DEBUG)
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -35,7 +28,7 @@ def get_listof_voice_files_contoller(message):
         markup = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True)
         for file in list_:
 
-            markup.add(telebot.types.KeyboardButton(text=f'/get_file {file["id"]}'))
+            markup.add(telebot.types.KeyboardButton(text="/get_file" + file["id"]))
         text = "Please choose file:"
         bot.reply_to(message, text, reply_markup=markup)
     else:
@@ -84,7 +77,7 @@ def save_photo(message):
     file_id = message.photo[0].file_id
     id, faces_count = check_and_save_photo(file_id, user_id, date)
     if faces_count > 0:
-        bot.reply_to(message, f"ок: {id}, faces: {faces_count}")
+        bot.reply_to(message, "ок: " + id + "faces: " + faces_count)
     else:
         bot.reply_to(message, "no faces on photo")
 
@@ -92,9 +85,9 @@ def save_photo(message):
 def save_voice_file(file_id, user_id, date):
     file_info = bot.get_file(file_id)
     response = requests.get(
-        f"https://api.telegram.org/file/bot{TOKEN}/{file_info.file_path}"
+        "https://api.telegram.org/file/bot" + TOKEN + "/" + file_info.file_path
     )
-    path = f"uploads/{file_id}.wav"
+    path = "uploads/" + file_id + ".wav"
     with open("temp", "w+b") as output:
         output.write(response.content)
         ogg_file = AudioSegment.from_ogg("temp")
@@ -115,9 +108,9 @@ def check_and_save_photo(file_id, user_id, date):
     file_info = bot.get_file(file_id)
     # add to path from file_info
     response = requests.get(
-        f"https://api.telegram.org/file/bot{TOKEN}/{file_info.file_path}"
+        "https://api.telegram.org/file/bot" + TOKEN + "/" + file_info.file_path
     )
-    path = f"uploads/{file_id}"
+    path = "uploads/" + file_id
     with open(path, "w+b") as output:
         output.write(response.content)
         image = face_recognition.load_image_file(path)
