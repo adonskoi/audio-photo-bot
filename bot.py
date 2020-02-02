@@ -19,7 +19,7 @@ bot = telebot.TeleBot(TOKEN)
 
 
 @bot.message_handler(commands=["get_files"])
-def get_listof_voice_files_contoller(message):
+def get_list_of_files_contoller(message):
     """send list of user files"""
     chat_id = message.chat.id
     user_id = message.from_user.id
@@ -27,8 +27,11 @@ def get_listof_voice_files_contoller(message):
         list_ = db.files.find({"user_id": user_id})
         markup = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True)
         for file in list_:
-
-            markup.add(telebot.types.KeyboardButton(text="/get_file" + file["id"]))
+            markup.add(
+                telebot.types.KeyboardButton(
+                    text=f'/get_file {file["id"]} {file["type"]}'
+                )
+            )
         text = "Please choose file:"
         bot.reply_to(message, text, reply_markup=markup)
     else:
@@ -77,7 +80,7 @@ def save_photo(message):
     file_id = message.photo[0].file_id
     id, faces_count = check_and_save_photo(file_id, user_id, date)
     if faces_count > 0:
-        bot.reply_to(message, "ок: " + id + "faces: " + faces_count)
+        bot.reply_to(message, f"ок: {id},faces: {faces_count}")
     else:
         bot.reply_to(message, "no faces on photo")
 
@@ -85,7 +88,7 @@ def save_photo(message):
 def save_voice_file(file_id, user_id, date):
     file_info = bot.get_file(file_id)
     response = requests.get(
-        "https://api.telegram.org/file/bot" + TOKEN + "/" + file_info.file_path
+        f"https://api.telegram.org/file/bot{TOKEN}/{file_info.file_path}"
     )
     path = "uploads/" + file_id + ".wav"
     with open("temp", "w+b") as output:
@@ -108,7 +111,7 @@ def check_and_save_photo(file_id, user_id, date):
     file_info = bot.get_file(file_id)
     # add to path from file_info
     response = requests.get(
-        "https://api.telegram.org/file/bot" + TOKEN + "/" + file_info.file_path
+        f"https://api.telegram.org/file/bot{TOKEN}/{file_info.file_path}"
     )
     path = "uploads/" + file_id
     with open(path, "w+b") as output:
