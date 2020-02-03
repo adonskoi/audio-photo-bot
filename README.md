@@ -1,9 +1,10 @@
 # audio-photo-bot
+
 Telegram bot. Can save audio file and photos with faces.
 
 ## Usage
 
-After adding bot to chat or sending message directly bot saved voice message to .wav (frame rate = 16 kH) and saved photos with faces. 
+After adding bot to chat or sending message directly bot saved voice message to .wav (frame rate = 16 kHz), saved audio mp3 file (frame rate = 16 kHz) and saved photos with faces.
 
 ### Commands
 
@@ -11,4 +12,4 @@ After adding bot to chat or sending message directly bot saved voice message to 
 
 /get_file <file_id> – return file with file_id
 
-### 
+###

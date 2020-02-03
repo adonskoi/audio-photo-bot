@@ -49,18 +49,28 @@ def get_file_contoller(message):
         file = db.files.find_one({"user_id": user_id, "id": int(id)})
         if file is not None:
             file_path = file["path"]
-            if file["type"] == "photo":
-                photo = open(file_path, "rb")
-                bot.send_photo(chat_id, photo)
-            else:
-                voice = open(file_path, "rb")
-                bot.send_voice(chat_id, voice)
+            with open(file_path, "rb") as content:
+                if file["type"] == "photo":
+                    bot.send_photo(chat_id, content)
+                if file["type"] == "audio":
+                    bot.send_audio(chat_id, content)
+                else:
+                    bot.send_voice(chat_id, content)
         else:
             text = "File not found"
             bot.reply_to(message, text)
     except IndexError:
         text = "Please specify file id"
         bot.reply_to(message, text)
+
+
+@bot.message_handler(content_types=["audio"])
+def save_voice_files(message):
+    file_id = message.audio.file_id
+    user_id = message.from_user.id
+    date = message.date
+    id = save_audio_file(file_id, user_id, date)
+    bot.reply_to(message, f"ок: {id}")
 
 
 @bot.message_handler(content_types=["voice"])
@@ -102,6 +112,28 @@ def save_voice_file(file_id, user_id, date):
         "user_id": user_id,
         "date": date,
         "type": "voice",
+    }
+    result = db.files.insert_one(data)
+    return data["id"]
+
+
+def save_audio_file(file_id, user_id, date):
+    file_info = bot.get_file(file_id)
+    response = requests.get(
+        f"https://api.telegram.org/file/bot{TOKEN}/{file_info.file_path}"
+    )
+    path = "uploads/" + file_id + ".wav"
+    with open("temp", "w+b") as output:
+        output.write(response.content)
+        ogg_file = AudioSegment.from_mp3("temp")
+        ogg_file.set_frame_rate(16000).export(path, format="wav")
+    count = db.files.count_documents({"user_id": user_id})
+    data = {
+        "id": count + 1,
+        "path": path,
+        "user_id": user_id,
+        "date": date,
+        "type": "audio",
     }
     result = db.files.insert_one(data)
     return data["id"]
