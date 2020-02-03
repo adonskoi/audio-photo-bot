@@ -85,9 +85,13 @@ def save_voice_files(message):
 @bot.message_handler(content_types=["photo"])
 def save_photo(message):
     user_id = message.from_user.id
-    print(message.photo[0])
+    max_index = 0
+    max_width = 0
+    for i, photo in enumerate(message.photo):
+        if photo.width > max_width:
+            max_index = i
     date = message.date
-    file_id = message.photo[0].file_id
+    file_id = message.photo[max_index].file_id
     id, faces_count = check_and_save_photo(file_id, user_id, date)
     if faces_count > 0:
         bot.reply_to(message, f"ок: {id},faces: {faces_count}")
