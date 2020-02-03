@@ -9,8 +9,7 @@ import face_recognition
 
 from config import DB, TOKEN, DB_HOST, DB_USERNAME, DB_PASSWORD, DB_SOURCE
 
-client = MongoClient(DB_HOST, username=DB_USERNAME, password=DB_PASSWORD, authSource=DB_SOURCE)
-db = client.bot_db
+db = MongoClient(DB_HOST, username=DB_USERNAME, password=DB_PASSWORD, authSource=DB_SOURCE)
 
 logger = telebot.logger
 telebot.logger.setLevel(logging.DEBUG)
